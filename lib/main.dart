@@ -1,20 +1,30 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:ui';
 import 'package:flame/components.dart';
 import 'package:flame/game.dart';
 import 'package:flame/input.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:toytanks/client.dart';
 //import 'package:toytanks/screens/game.dart';
 import 'package:toytanks/screens/gameflame.dart';
+import 'package:toytanks/screens/mainmenu.dart';
 import 'package:toytanks/screens/menu.dart';
 import 'package:toytanks/screens/onserver.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final game = ToyTanksGame();
-  runApp(GameWidget(game: game));
+  //final game = ToyTanksGame();
+  runApp(MaterialApp(
+    themeMode: ThemeMode.dark,
+    darkTheme: ThemeData.dark().copyWith(
+      textTheme: GoogleFonts.bungeeInlineTextTheme(),
+      scaffoldBackgroundColor: Colors.black
+    ),
+    home: const MainMenu(),
+  ));
 }
 
 void handle(TapDownInfo info) {
