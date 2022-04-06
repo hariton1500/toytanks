@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:toytanks/client.dart';
 import 'package:toytanks/main.dart';
 import 'package:toytanks/screens/mainmenu.dart';
+import 'package:toytanks/screens/setup.dart';
 import 'package:web_socket_channel/io.dart';
 
 ToyTanksGame _toyTanksGame = ToyTanksGame();
@@ -17,10 +18,10 @@ class GamePlay extends StatefulWidget {
 }
 
 class _GamePlayState extends State<GamePlay> {
-  
-  late IOWebSocketChannel _connection;
+  Map<String, bool> status = {'setupComplited': false, 'connectionEstablished': false};
+  IOWebSocketChannel? _connection;
   dynamic res;
-  bool connectionEstablished = false;
+  //bool connectionEstablished = false;
   int ticksWaiting = 0;
 
   @override
@@ -31,19 +32,18 @@ class _GamePlayState extends State<GamePlay> {
   }
 
   void checkConnection(Timer timer) {
-    //debugPrint((timer.tick % 10).toString());
-    //debugPrint(connectionEstablished.toString());
     if (timer.tick >= 100) {
       timer.cancel();
       Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const MainMenu()));
     }
-    if (res is IOWebSocketChannel) {
+    if (res is IOWebSocketChannel && _connection is! IOWebSocketChannel) {
       _connection = res;
     }
-    if (_connection.protocol != null) {
+    if (_connection?.innerWebSocket != null) {
       setState(() {
-        connectionEstablished = true;
+        status['connectionEstablished'] = true;
         timer.cancel();
+        makeHandshake();
       });
     }
     setState(() {
@@ -51,14 +51,21 @@ class _GamePlayState extends State<GamePlay> {
     });
   }
 
+  void makeHandshake() {
+    
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (connectionEstablished) {
+    if (!status['setupComplited']!) {
+      return const SetupPage();
+    }
+    if (status['connectionEstablished']!) {
       return GameWidget(game: _toyTanksGame,);
     } else {
       return Material(child: Center(
           child: Text('(${(ticksWaiting / 10).ceil()}) connecting...'),
           ));
-    }
+    } 
   }
 }
