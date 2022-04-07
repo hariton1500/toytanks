@@ -64,7 +64,7 @@ class _GamePlayState extends State<GamePlay> {
       return GameWidget(game: _toyTanksGame,);
     } else {
       return Material(child: Center(
-          child: Text('(${(ticksWaiting / 10).ceil()}) connecting...'),
+          child: Text('(${(10 - ticksWaiting / 10).ceil()}) connecting...'),
           ));
     } 
   }
