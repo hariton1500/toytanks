@@ -65,9 +65,12 @@ class _MainMenuState extends State<MainMenu> {
               onPressed: () => Navigator.of(context).pushReplacement(MaterialPageRoute(builder: ((context) => const GamePlay()))),
               child: const Text('Play')
             ),
-            ElevatedButton(
-              onPressed: () => Navigator.of(context).pushReplacement(MaterialPageRoute(builder: ((context) => const SetupPage()))),
-              child: const Text('Setup')
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20.0),
+              child: ElevatedButton(
+                onPressed: () => Navigator.of(context).pushReplacement(MaterialPageRoute(builder: ((context) => const SetupPage()))),
+                child: const Text('Setup')
+              ),
             )
           ],
         ),

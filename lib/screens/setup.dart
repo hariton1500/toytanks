@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:toytanks/screens/mainmenu.dart';
 
 class SetupPage extends StatefulWidget {
   const SetupPage({ Key? key }) : super(key: key);
@@ -20,70 +23,89 @@ class _SetupPageState extends State<SetupPage> {
   Widget build(BuildContext context) {
     if (status == 'nep') {
       saveSetup();
-      Timer(const Duration(seconds: 1), () => Navigator.of(context).pop(context));
+      Timer(const Duration(seconds: 1), () => Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const MainMenu())));
       return Scaffold(
         body: Container(),
       );
     } else {
       return Scaffold(
         body: Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.all(40.0),
           child: Center(
-            child: status == '' ?
-              TextField(
-                style: const TextStyle(
-                  color: Colors.green
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20.0),
+                  child: TextField(
+                    style: const TextStyle(
+                      color: Color.fromARGB(255, 21, 116, 24)
+                    ),
+                    obscureText: false,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Name',
+                    ),
+                    onSubmitted: (text) {
+                      setState(() {
+                        name = text;
+                        status = 'n';
+                      });
+                    },
+                  ),
                 ),
-                obscureText: false,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Name',
-                ),
-                onSubmitted: (text) {
-                  setState(() {
-                    name = text;
-                    status = 'n';
-                  });
-                },
-              )
-            : status == 'n' ?
-                TextField(
-                  style: const TextStyle(
-                    color: Colors.green
+              status == 'n' ?
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20.0),
+                  child: TextField(
+                    style: const TextStyle(
+                      color: Colors.green
+                    ),
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Email',
+                    ),
+                    keyboardType: TextInputType.emailAddress,
+                    onSubmitted: (text) {
+                      setState(() {
+                        email = text;
+                        status = 'ne';
+                      });
+                    },
                   ),
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Email',
-                  ),
-                  keyboardType: TextInputType.emailAddress,
-                  onSubmitted: (text) {
-                    setState(() {
-                      email = text;
-                      status = 'ne';
-                    });
-                  },
                 )
-              : TextField(
-                  style: const TextStyle(
-                    color: Colors.green
+              : Container(),
+              status == 'ne' ?
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20.0),
+                  child: TextField(
+                    style: const TextStyle(
+                      color: Colors.green
+                    ),
+                    obscureText: true,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Password',
+                    ),
+                    onSubmitted: (text) {
+                      setState(() {
+                        password = text;
+                        status = 'nep';
+                      });
+                    },
                   ),
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Password',
-                  ),
-                  onSubmitted: (text) {
-                    setState(() {
-                      password = text;
-                      status = 'nep';
-                    });
-                  },
                 )
+              : Container()
+              ],
+            )
           ),
         ),
       );
     }
   }
 
-  saveSetup() {}
+  saveSetup() async {
+    var prefs = await SharedPreferences.getInstance();
+    prefs.setString('setup', jsonEncode({'setup': {'name': name, 'email': email, 'passwd': password}}));
+  }
 }
