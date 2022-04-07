@@ -57,6 +57,8 @@ class _GamePlayState extends State<GamePlay> {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('game2 build');
+    debugPrint(status.toString());
     if (!status['setupComplited']!) {
       return const SetupPage();
     }
