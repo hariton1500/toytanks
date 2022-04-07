@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:io' show HttpServer, HttpRequest, WebSocket, WebSocketTransformer;
 import 'dart:convert' show json;
 import 'dart:async' show Timer;

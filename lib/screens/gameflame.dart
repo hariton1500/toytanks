@@ -139,25 +139,25 @@ class MyGame extends FlameGame with KeyboardEvents, HasCollisionDetection {
       return KeyEventResult.handled;
     }
     if (keysPressed.contains(LogicalKeyboardKey.arrowLeft)) {
-      MyTank2().ChangeSpeed(faster: false);
+      MyTank2().changeSpeed(faster: false);
       debugPrint('left');
       turnLeft();
       return KeyEventResult.handled;
     }
     if (keysPressed.contains(LogicalKeyboardKey.arrowRight)) {
-      MyTank2().ChangeSpeed(faster: false);
+      MyTank2().changeSpeed(faster: false);
       debugPrint('right');
       turnRight();
       return KeyEventResult.handled;
     }
     if (keysPressed.contains(LogicalKeyboardKey.keyA)) {
-      MyTank2().ChangeSpeed(faster: false);
+      MyTank2().changeSpeed(faster: false);
       debugPrint('A');
       turnWeaponLeft();
       return KeyEventResult.handled;
     }
     if (keysPressed.contains(LogicalKeyboardKey.keyD)) {
-      MyTank2().ChangeSpeed(faster: false);
+      MyTank2().changeSpeed(faster: false);
       debugPrint('D');
       turnWeaponRight();
       return KeyEventResult.handled;
@@ -191,7 +191,7 @@ class MyTank2 extends PositionComponent{
   double speed = 0, maxForvardSpeed = 5, maxBackSpeed = 3, speedDelta = 1;
 
   MyTank2() : super(position: Vector2(100, 100));
-  void ChangeSpeed({required bool faster}) {
+  void changeSpeed({required bool faster}) {
     if (faster) {
       speed += speedDelta;
     } else {
