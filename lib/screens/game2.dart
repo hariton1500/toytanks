@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flame/components.dart' hide Timer;
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -15,6 +16,8 @@ IOWebSocketChannel? _connection;
 String? myName, myIP, myGameType;
 int? myIndex;
 List<String>? myMap;
+Vector2? myPosition;
+List<Vector2>? otherPlayersPos;
 
 class GamePlay extends StatefulWidget {
   const GamePlay({Key? key}) : super(key: key);
@@ -104,6 +107,9 @@ class _GamePlayState extends State<GamePlay> {
     if (status['connectionEstablished']!) {
       return GameWidget(
         game: _toyTanksGame,
+        loadingBuilder: (context) => const Center(
+          child: CircularProgressIndicator(),
+        ),
       );
     } else {
       return Material(
@@ -114,7 +120,7 @@ class _GamePlayState extends State<GamePlay> {
   }
 
   handleData(data) {
-    print(data);
+    //print(data);
     try {
       Map<String, dynamic> message = jsonDecode(data);
       switch (message.keys.toList()[0]) {
@@ -140,6 +146,15 @@ class _GamePlayState extends State<GamePlay> {
             myIndex = message['yourIndex'];
             print('myIndex in Map is: $myIndex');
           });
+          break;
+        case 'position':
+          var _position = message['position'];
+          if (_position is Map) {
+            var index = _position['position']['index'];
+            var position = message['position']['pos'](_position[0], _position[1]);
+            print('myPosition in Map is: $myPosition');
+            _toyTanksGame.setPosition(position, index);
+          }
           break;
         default:
       }
@@ -233,4 +248,49 @@ class _WaitingRoomState extends State<WaitingRoom> {
   }
 }
 
-class ToyTanksGame extends FlameGame {}
+class ToyTanksGame extends FlameGame {
+  final List<PositionComponent> _players = [];
+  //List<PositionComponent> _enemies = [];
+  @override
+  Future<void> onLoad() async {
+    for (var line in myMap!) {
+      line.toString().characters.forEach((c) {
+        if (c == '=') {
+          add(Wall(pos: Vector2(line.indexOf(c) * 20 + 10, myMap!.indexOf(line) * 20 + 10)));
+        } else {
+          _players.add(Player(
+            pos: Vector2(line.indexOf(c) * 20 + 10, myMap!.indexOf(line) * 20 + 10),
+          ));
+        }
+      });
+    }
+    addAll(_players);
+    camera.followComponent(_players[myIndex! - 1]);
+  }
+
+  void setPosition(Vector2 vector2, index) {
+    _players[index].position = vector2;
+  }
+  //@override
+}
+
+class Wall extends SpriteComponent {
+  Wall({required Vector2 pos})
+      : super(position: pos, size: Vector2.all(20.0)) {
+    Sprite.load('wall.png');
+  }
+}
+
+class Player extends SpriteComponent {
+  Player({required Vector2 pos})
+      : super(position: pos, size: Vector2(20.0, 10.0)) {
+    Sprite.load('tank.png');
+  }
+}
+
+class Enemy extends SpriteComponent {
+  Enemy({required Vector2 pos})
+      : super(position: pos, size: Vector2(20.0, 10.0)) {
+    Sprite.load('tank.png');
+  }
+}
