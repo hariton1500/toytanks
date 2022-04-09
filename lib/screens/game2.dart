@@ -5,7 +5,9 @@ import 'dart:convert';
 
 import 'package:flame/components.dart' hide Timer;
 import 'package:flame/game.dart';
+import 'package:flame/input.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toytanks/client.dart';
 import 'package:toytanks/screens/mainmenu.dart';
@@ -105,6 +107,7 @@ class _GamePlayState extends State<GamePlay> {
       );
     }
     if (status['connectionEstablished']!) {
+      print('entering game');
       return GameWidget(
         game: _toyTanksGame,
         loadingBuilder: (context) => const Center(
@@ -151,7 +154,8 @@ class _GamePlayState extends State<GamePlay> {
           var _position = message['position'];
           if (_position is Map) {
             var index = _position['position']['index'];
-            var position = message['position']['pos'](_position[0], _position[1]);
+            var position =
+                message['position']['pos'](_position[0], _position[1]);
             print('myPosition in Map is: $myPosition');
             _toyTanksGame.setPosition(position, index);
           }
@@ -248,43 +252,93 @@ class _WaitingRoomState extends State<WaitingRoom> {
   }
 }
 
-class ToyTanksGame extends FlameGame {
-  final List<PositionComponent> _players = [];
+class ToyTanksGame extends FlameGame with KeyboardEvents {
+  final List<SpriteComponent> players = [], walls = [];
+  SpriteComponent? wall, player;
   //List<PositionComponent> _enemies = [];
   @override
   Future<void> onLoad() async {
-    for (var line in myMap!) {
-      line.toString().characters.forEach((c) {
+    //super.onLoad();
+    final wallSprite = await Sprite.load('wall.png');
+    final playerSprite = await Sprite.load('tank.png');
+    for (var i = 0; i < myMap!.length; i++) {
+      String line = myMap![i];
+      for (var j = 0; j < line.split('').length; j++) {
+        String c = line[j];
         if (c == '=') {
-          add(Wall(pos: Vector2(line.indexOf(c) * 20 + 10, myMap!.indexOf(line) * 20 + 10)));
+          wall = SpriteComponent(
+              position: Vector2(j * 20 + 10, i * 20 + 10),
+              sprite: wallSprite,
+              size: Vector2.all(20.0));
+          //print(wall!.position.toString());
+          walls.add(wall!);
+        } else if (c == ' ') {
         } else {
-          _players.add(Player(
-            pos: Vector2(line.indexOf(c) * 20 + 10, myMap!.indexOf(line) * 20 + 10),
-          ));
+          player = SpriteComponent(
+              sprite: playerSprite,
+              position: Vector2(j * 20 + 10, i * 20 + 10),
+              size: Vector2(10, 20));
+          print(player!.position.toString());
+          players.add(player!);
         }
-      });
+      }
     }
-    addAll(_players);
-    camera.followComponent(_players[myIndex! - 1]);
+    print('players: ' + players.length.toString());
+    addAll(players);
+    print('walls: ${walls.length}');
+    addAll(walls);
+    if (players.isNotEmpty) {
+      camera.followComponent(players[myIndex! - 1]);
+      camera.zoom = 2;
+    }
+  }
+
+  @override
+  KeyEventResult onKeyEvent(
+    RawKeyEvent event,
+    Set<LogicalKeyboardKey> keysPressed,
+  ) {
+    final isKeyDown = event is RawKeyDownEvent;
+
+    final isSpace = keysPressed.contains(LogicalKeyboardKey.space);
+    final isW = keysPressed.contains(LogicalKeyboardKey.keyW);
+    final isS = keysPressed.contains(LogicalKeyboardKey.keyS);
+    final isA = keysPressed.contains(LogicalKeyboardKey.keyA);
+    final isD = keysPressed.contains(LogicalKeyboardKey.keyD);
+    final isLeft = keysPressed.contains(LogicalKeyboardKey.arrowLeft);
+    final isRight = keysPressed.contains(LogicalKeyboardKey.arrowRight);
+
+    if (isSpace && isKeyDown) {
+      shoot();
+      return KeyEventResult.handled;
+    }
+    return KeyEventResult.ignored;
   }
 
   void setPosition(Vector2 vector2, index) {
-    _players[index].position = vector2;
+    if (players.length - 1 >= index) {
+      players[index].position = vector2;
+    }
   }
+
+  void shoot() {}
   //@override
 }
 
 class Wall extends SpriteComponent {
-  Wall({required Vector2 pos})
-      : super(position: pos, size: Vector2.all(20.0)) {
-    Sprite.load('wall.png');
+  Wall({required Vector2 pos}) : super(position: pos, size: Vector2.all(20.0));
+  @override
+  Future<void> onLoad() async {
+    await Sprite.load('wall.png');
   }
 }
 
 class Player extends SpriteComponent {
   Player({required Vector2 pos})
-      : super(position: pos, size: Vector2(20.0, 10.0)) {
-    Sprite.load('tank.png');
+      : super(position: pos, size: Vector2(20.0, 10.0));
+  @override
+  Future<void> onLoad() async {
+    await Sprite.load('tank.png');
   }
 }
 
