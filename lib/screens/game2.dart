@@ -181,6 +181,9 @@ class GameVariants extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             ElevatedButton(
+                onPressed: () => sendVariant('0x0'),
+                child: const Text('0 x 0')),
+            ElevatedButton(
                 onPressed: () => sendVariant('1x1'),
                 child: const Text('1 x 1')),
             ElevatedButton(
@@ -281,7 +284,7 @@ class ToyTanksGame extends FlameGame with KeyboardEvents {
               sprite: playerSprite,
               position: Vector2(j * 20 + 10, i * 20 + 10),
               size: Vector2(10, 20));
-          print(player!.position.toString());
+          print('player position is: ${player!.position.toString()}');
           players.add(player!);
         }
       }
@@ -348,9 +351,10 @@ class ToyTanksGame extends FlameGame with KeyboardEvents {
   }
 
   void setPosition(Vector2 vector2, int index, double angle) {
-    if (players.length - 1 >= index) {
-      players[index].position = vector2;
-      players[index].angle = angle;
+    if (players.length - 1 >= index - 1) {
+      print('setting position to $vector2 angle to $angle');
+      players[index - 1].position = vector2;
+      players[index - 1].angle = angle;
     }
   }
 
