@@ -152,12 +152,13 @@ class _GamePlayState extends State<GamePlay> {
           break;
         case 'position':
           var _position = message['position'];
+          //print(_position);
           if (_position is Map) {
-            var index = _position['position']['index'];
-            var position =
-                message['position']['pos'](_position[0], _position[1]);
-            print('myPosition in Map is: $myPosition');
-            _toyTanksGame.setPosition(position, index);
+            var index = int.parse(_position['index'].toString());
+            var position = Vector2(_position['x'], _position['y']);
+            var angle = _position['angle'];
+            //print('myPosition in Map is: $position');
+            _toyTanksGame.setPosition(position, index, angle);
           }
           break;
         default:
@@ -267,6 +268,7 @@ class ToyTanksGame extends FlameGame with KeyboardEvents {
         String c = line[j];
         if (c == '=') {
           wall = SpriteComponent(
+              anchor: Anchor.center,
               position: Vector2(j * 20 + 10, i * 20 + 10),
               sprite: wallSprite,
               size: Vector2.all(20.0));
@@ -275,6 +277,7 @@ class ToyTanksGame extends FlameGame with KeyboardEvents {
         } else if (c == ' ') {
         } else {
           player = SpriteComponent(
+              anchor: Anchor.center,
               sprite: playerSprite,
               position: Vector2(j * 20 + 10, i * 20 + 10),
               size: Vector2(10, 20));
@@ -289,7 +292,7 @@ class ToyTanksGame extends FlameGame with KeyboardEvents {
     addAll(walls);
     if (players.isNotEmpty) {
       camera.followComponent(players[myIndex! - 1]);
-      camera.zoom = 2;
+      camera.zoom = 1;
     }
   }
 
@@ -313,6 +316,7 @@ class ToyTanksGame extends FlameGame with KeyboardEvents {
       return KeyEventResult.handled;
     }
     if (isW && isKeyDown) {
+      print('W');
       speed(1);
       return KeyEventResult.handled;
     }
@@ -343,9 +347,10 @@ class ToyTanksGame extends FlameGame with KeyboardEvents {
     return KeyEventResult.ignored;
   }
 
-  void setPosition(Vector2 vector2, index) {
+  void setPosition(Vector2 vector2, int index, double angle) {
     if (players.length - 1 >= index) {
       players[index].position = vector2;
+      players[index].angle = angle;
     }
   }
 
