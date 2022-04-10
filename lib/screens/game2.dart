@@ -312,6 +312,34 @@ class ToyTanksGame extends FlameGame with KeyboardEvents {
       shoot();
       return KeyEventResult.handled;
     }
+    if (isW && isKeyDown) {
+      speed(1);
+      return KeyEventResult.handled;
+    }
+    if (isS && isKeyDown) {
+      speed(-1);
+      return KeyEventResult.handled;
+    }
+    if (isA && isKeyDown) {
+      leftRight(-1);
+      return KeyEventResult.handled;
+    }
+    if (isD && isKeyDown) {
+      leftRight(1);
+      return KeyEventResult.handled;
+    }
+    if (isLeft && isKeyDown) {
+      leftRightGun(-1);
+      return KeyEventResult.handled;
+    }
+    if (isRight && isKeyDown) {
+      leftRightGun(1);
+      return KeyEventResult.handled;
+    }
+    if (isSpace && isKeyDown) {
+      shoot();
+      return KeyEventResult.handled;
+    }
     return KeyEventResult.ignored;
   }
 
@@ -321,7 +349,37 @@ class ToyTanksGame extends FlameGame with KeyboardEvents {
     }
   }
 
-  void shoot() {}
+  void shoot() {
+    _connection?.sink.add(jsonEncode({
+      'playerAction': {
+        'key': {'shoot': ''}
+      }
+    }));
+  }
+
+  void speed(int i) {
+    _connection?.sink.add(jsonEncode({
+      'playerAction': {
+        'key': {'speed': i}
+      }
+    }));
+  }
+
+  void leftRight(int i) {
+    _connection?.sink.add(jsonEncode({
+      'playerAction': {
+        'key': {'leftRight': i}
+      }
+    }));
+  }
+
+  void leftRightGun(int i) {
+    _connection?.sink.add(jsonEncode({
+      'playerAction': {
+        'key': {'leftRightGun': i}
+      }
+    }));
+  }
   //@override
 }
 
